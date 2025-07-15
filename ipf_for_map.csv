@@ -1,4 +1,4 @@
-Sl.No.,Sources,Photo/comments,COMMON.NAME,STATE,Region,LATITUDE,LONGITUDE,month,day,year,morph
+Sl.No.,Sources,Photo/comments,COMMON.NAME,STATE,region,LATITUDE,LONGITUDE,month,day,year,morph
 1,ebird,comments,Indian Paradise-Flycatcher,Kerala,South,8.3117,77.0063657,1,1,1978,W
 2,ebird,comments,Indian Paradise-Flycatcher,Kerala,South,8.237763,77.0023584,3,17,1978,R
 3,ebird,comments,Indian Paradise-Flycatcher,Kerala,South,8.237764,77.0063657,11,18,1980,I
@@ -2194,7 +2194,7 @@ Sl.No.,Sources,Photo/comments,COMMON.NAME,STATE,Region,LATITUDE,LONGITUDE,month,
 2194,ebird,comments,Indian Paradise-Flycatcher,Haryana,North,26.855,77.5169174,7,19,2018,W
 2195,ebird,comments,Indian Paradise-Flycatcher,Karnataka,South,12.7693427,74.9368654,7,19,2018,W
 2196,ebird,comments,Indian Paradise-Flycatcher,Haryana,North,26.062108,77.1099445,7,20,2018,R
-2197,ebird,Photo,Indian Paradise-Flycatcher,Jammu & Kashmir,Himalayas,28.4835371,74.8619 ,7,20,2018,I
+2197,ebird,Photo,Indian Paradise-Flycatcher,Jammu & Kashmir,Himalayas,28.4835371,74.8619 ,7,20,2018,JI
 2198,ebird,Photo,Indian Paradise-Flycatcher,Jammu & Kashmir,Himalayas,28.4936629,74.8619 ,7,20,2018,W
 2199,OBI,Photo,Indian Paradise-Flycatcher,Haryana,North,29.3476,77.174245,7,21,2018,R
 2200,ebird,Photo,Indian Paradise-Flycatcher,Karnataka,South,12.8536944,77.5095 ,7,21,2018,R
