@@ -1,6 +1,10 @@
 # History files
 .Rhistory
 .Rapp.history
+.DS_Store
+
+# specific files
+data_sampling_eBird.csv
 
 # Session data files
 #/*.RData
