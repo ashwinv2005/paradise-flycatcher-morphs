@@ -123,7 +123,7 @@ map_to_use_sf = map_to_use_sf %>%
                 "Telangana","Karnataka","Andhra Pradesh",
                 "Dadra and Nagar Haveli","Daman and Diu") ~ "Central",
     STATE.NAME %in% c("Southern Karnataka","Southern Andhra Pradesh","Kerala",
-                "Tamil Nadu","Puducherry","Tripura") ~ "South",
+                "Tamil Nadu","Puducherry") ~ "South",
     STATE.NAME %in% c("Sri Lanka") ~ "Sri Lanka",
     TRUE ~ NA
   )) %>%

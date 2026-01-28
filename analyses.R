@@ -11,10 +11,14 @@ map_to_use_sf = map_to_use_sf %>%
 
 data = read.csv("data_morphs.csv") %>%
   mutate(REGION = case_when(REGION == "East" ~ "North",
-                            TRUE ~ REGION))
+                            TRUE ~ REGION)) %>%
+  filter(!source %in% "OBI") %>%
+  filter(!morph %in% "R(D)")
+  
 data_full = read.csv("data_sampling_eBird.csv") %>%
   mutate(REGION = case_when(REGION == "East" ~ "North",
                             TRUE ~ REGION))
+
 data_ipf = read.csv("data_ipf_eBird.csv") %>%
   mutate(REGION = case_when(REGION == "East" ~ "North",
                             TRUE ~ REGION))
@@ -31,7 +35,7 @@ rufous_total = data %>%
   
 intermediate_total = data %>%
   filter(morph == "I") %>%
-  group_by(month,morph) %>%
+  group_by(REGION,month,morph) %>%
   reframe(count = n()) %>%
   mutate(morph = "Intermediate")
 
@@ -83,20 +87,20 @@ morph_stats = white_stats %>%
                            TRUE ~ as.numeric(cil)))
   
 bks = c("Himalaya","North","Central","South","Sri Lanka")
-lbs = c("Himalaya","North\nIndia","Central\nIndia",
-        "South\nIndia","Sri Lanka")
+lbs = c("Himalaya","Northern\nSubcontinent","Central\nIndia",
+        "Southern\nIndia","Sri Lanka")
 
 morph_stats$REGION = factor(morph_stats$REGION,
                             levels = bks)
 
-ggp = ggplot(data = morph_stats %>% filter(!REGION %in% c("East"))) +
+ggp = ggplot(data = morph_stats) +
   facet_wrap(~ REGION,
              scales = "free_y",
              ncol = 1,
              strip.position = "right",
-             labeller = labeller(REGION = c(North="North\nIndia",
+             labeller = labeller(REGION = c(North="Northern\nSubcontinent",
                                             Central = "Central\nIndia",
-                                            South="South\nIndia"))) +
+                                            South="Southern\nIndia"))) +
   geom_line(aes(x = month, y = prop, col = morph), linewidth = 2) +
   geom_ribbon(aes(x = month, ymin = cil, ymax = ciu, col = morph, 
                   fill = morph), alpha = 0.2, linetype = 0) +
@@ -130,7 +134,7 @@ plot_morphs = ggp +
     panel.background = element_rect(fill = "#d0d9a4", colour = NA),
     plot.background = element_rect(fill = "#d0d9a4", colour = NA)
     ) +
-  scale_y_continuous(expand = c(0,0), breaks = c(0), labels = c(0), limits = c(0,1)) +
+  scale_y_continuous(expand = c(0,0.05), breaks = c(0,1), labels = c(0,1), limits = c(0,1)) +
   scale_colour_manual(breaks = c("White","Rufous"), values = c("white","#a63e27")) +
   scale_fill_manual(breaks = c("White","Rufous"), values = c("white","#a63e27")) +
   theme(
@@ -149,8 +153,15 @@ ggsave(file=n, units="in", width=7, height=10)
 # plot intermediate
 
 morph_total = data %>%
-  group_by(month) %>%
+  group_by(REGION, month) %>%
   reframe(total = n())
+
+morph_total = data_full %>%
+  distinct(REGION,month) %>%
+  left_join(morph_total) %>%
+  mutate(total = case_when(is.na(total) ~ 1,
+                         TRUE ~ as.numeric(total)))
+  
 
 intermediate_stats = morph_total %>%
   left_join(intermediate_total) %>%
@@ -159,17 +170,32 @@ intermediate_stats = morph_total %>%
   mutate(morph = "Intermediate")
 
 morph_stats_int = intermediate_stats %>%
+  group_by(REGION) %>%
   rowwise() %>%
   mutate(cil = binconf(count, total, 0.05)[2],
          prop = count/total,
          ciu = binconf(count, total, 0.05)[3]) %>%
   mutate(cil = case_when(cil < 0 ~ 0,
+                         TRUE ~ as.numeric(cil))) %>%
+  mutate(cil = case_when(is.na(cil) ~ 0,
+                         TRUE ~ as.numeric(cil))) %>%
+  mutate(cil = case_when(cil > 0.12 ~ 0.12,
                          TRUE ~ as.numeric(cil)))
 
+morph_stats_int$REGION = factor(morph_stats_int$REGION,
+                            levels = bks)
+
 ggp = ggplot(data = morph_stats_int) +
-  geom_line(aes(x = month, y = prop), linewidth = 2) +
-  geom_ribbon(aes(x = month, ymin = cil, ymax = ciu),
-              alpha = 0.2, linetype = 0) +
+  facet_wrap(~ REGION,
+             scales = "free_y",
+             ncol = 1,
+             strip.position = "right",
+             labeller = labeller(REGION = c(North="Northern\nSubcontinent",
+                                            Central = "Central\nIndia",
+                                            South="Southern\nIndia"))) +
+  geom_line(aes(x = month, y = cil), linewidth = 2) +
+  #geom_ribbon(aes(x = month, ymin = cil, ymax = ciu),
+  #            alpha = 0.2, linetype = 0) +
   geom_hline(yintercept = 0, linetype = "dotted") +
   ylab("Relative frequency of intermediate morph")
 
@@ -181,6 +207,10 @@ plot_intermediate = ggp +
     axis.ticks.y = element_blank(),
     axis.title.y = element_text(angle = 90, size = 16), 
     axis.text.y = element_text(size = 12)
+  ) +
+  theme(
+    strip.text.y = element_text(size = 12, face = 'bold.italic'),
+    strip.background = element_rect(fill = "white", colour = NA)
   ) +
   theme(text=element_text(family="Gill Sans", face = 'bold')) +
   scale_x_continuous(
@@ -196,7 +226,8 @@ plot_intermediate = ggp +
     panel.background = element_rect(fill = "white", colour = NA),
     plot.background = element_rect(fill = "white", colour = NA)
   ) +
-  scale_y_continuous(expand = c(0,0), breaks = seq(0,1,0.02))
+  scale_y_continuous(expand = c(0.05,0), breaks = c(0,0.1),
+                     limits = c(0,0.12))
 
 n = "plot_intermediate.png"
 
