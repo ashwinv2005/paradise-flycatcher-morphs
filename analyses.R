@@ -146,7 +146,7 @@ plot_morphs = ggp +
     legend.position = "bottom"
     )
 
-n = "plot_morphs.png"
+n = "Fig. 2.png"
 
 print(plot_morphs)
 ggsave(file=n, units="in", width=7, height=10)
@@ -230,7 +230,7 @@ plot_intermediate = ggp +
   scale_y_continuous(expand = c(0.05,0), breaks = c(0,0.1),
                      limits = c(0,0.12))
 
-n = "plot_intermediate.png"
+n = "Fig. 3.png"
 
 print(plot_intermediate)
 ggsave(file=n, units="in", width=8, height=6)
@@ -300,7 +300,7 @@ plot_rating = ggp +
   ) +
   scale_y_continuous(expand = c(0,0.1), limits = c(0,10), breaks = seq(0,10,1))
 
-n = "plot_rating.png"
+n = "Fig. 4.png"
 
 print(plot_rating)
 ggsave(file=n, units="in", width=8, height=6)
@@ -380,7 +380,7 @@ regionmap = ggplot() +
   #scale_fill_manual(breaks = bks, values = cols1, labels = lbs, na.value = "white") +
   coord_sf()
 
-n = "regionmap.png"
+n = "Fig. 1.png"
 
 print(regionmap)
 ggsave(file=n, units="in", width=8, height=10)
