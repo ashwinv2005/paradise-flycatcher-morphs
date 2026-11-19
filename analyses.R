@@ -101,9 +101,8 @@ ggp = ggplot(data = morph_stats) +
              labeller = labeller(REGION = c(North="Northern\nSubcontinent",
                                             Central = "Central\nIndia",
                                             South="Southern\nIndia"))) +
-  geom_line(aes(x = month, y = prop, col = morph), linewidth = 2) +
-  geom_ribbon(aes(x = month, ymin = cil, ymax = ciu, col = morph, 
-                  fill = morph), alpha = 0.2, linetype = 0) +
+  geom_line(aes(x = month, y = prop, linetype = morph), linewidth = 1) +
+  geom_ribbon(aes(x = month, ymin = cil, ymax = ciu, linetype = morph), alpha = 0.3, fill = "grey70") +
   geom_hline(yintercept = 0, linetype = "dotted") +
   ylab("Standardized colour morph frequency")
 
@@ -111,15 +110,15 @@ ggp = ggplot(data = morph_stats) +
 plot_morphs = ggp +
   theme(
     axis.title.x = element_blank(), 
-    axis.text.x = element_text(size = 16), 
+    axis.text.x = element_text(size = 14), 
     axis.ticks.y = element_blank(),
-    axis.title.y = element_text(angle = 90, size = 22), 
-    axis.text.y = element_text(size = 16)
+    axis.title.y = element_text(angle = 90, size = 18), 
+    axis.text.y = element_text(size = 14)
     ) +
   theme(text=element_text(family="Gill Sans", face = 'bold')) +
   theme(
-    strip.text.y = element_text(size = 15, face = 'bold.italic'),
-    strip.background = element_rect(fill = "#d0d9a4", colour = NA)
+    strip.text.y = element_text(size = 14, face = 'bold.italic'),
+    strip.background = element_rect(fill = NA, colour = NA)
   ) +
   scale_x_continuous(
     expand = c(0,0),
@@ -131,14 +130,16 @@ plot_morphs = ggp +
   theme(
     panel.grid.major = element_blank(),
     panel.grid.minor = element_blank(),
-    panel.background = element_rect(fill = "#d0d9a4", colour = NA),
-    plot.background = element_rect(fill = "#d0d9a4", colour = NA)
+    panel.background = element_rect(fill = NA, colour = NA),
+    plot.background = element_rect(fill = NA, colour = NA)
     ) +
   scale_y_continuous(expand = c(0,0.05), breaks = c(0,1), labels = c(0,1), limits = c(0,1)) +
-  scale_colour_manual(breaks = c("White","Rufous"), values = c("white","#a63e27")) +
-  scale_fill_manual(breaks = c("White","Rufous"), values = c("white","#a63e27")) +
+  scale_linetype_manual(breaks = c("White","Rufous"), values = c(1,2)) +
   theme(
-    legend.background = element_rect(fill = "#d0d9a4", colour = NA),
+    legend.key.width = unit(2.2, "cm") # Makes the legend line wider
+  ) +
+  theme(
+    legend.background = element_rect(fill = NA, colour = NA),
     legend.key = element_rect(colour = NA),
     legend.title = element_blank(),
     legend.text = element_text(size = 14),
@@ -313,8 +314,52 @@ ns = 5
 
 cols1 = cols[c(1:ns)]
 
+sf_use_s2(FALSE)
+
+regions_sf = map_to_use_sf %>%
+  filter(!is.na(REGION)) %>%
+  st_buffer(0.03) %>%
+  group_by(REGION) %>%
+  summarise(.groups = "drop") %>%
+  st_buffer(-0.03)
+
+sf_use_s2(TRUE)
+
 regionmap = ggplot() +
-  geom_sf(data = map_to_use_sf, aes(fill=REGION), colour = "black")+  
+  geom_sf(data = map_to_use_sf %>% 
+            filter(!STATE.NAME %in% c("Bangladesh","Nepal")), fill = NA, colour = "black", linewidth = 0.1) +  
+  geom_sf(data = regions_sf, fill = NA, colour = "black", linewidth = 0.6) +
+  geom_sf_text(
+    data = regions_sf %>%
+      filter(!REGION %in% c("Himalaya","Sri Lanka")) %>%
+      st_point_on_surface(),
+    aes(label = REGION),
+    size = 8
+  ) +
+  geom_sf_text(
+    data = regions_sf %>%
+      filter(REGION == "Himalaya") %>%
+      st_point_on_surface() %>%
+      st_geometry() %>%
+      st_coordinates() %>%
+      as.data.frame() %>%
+      mutate(X = X + 15, Y = Y - 8) %>%
+      st_as_sf(coords = c("X", "Y"), crs = st_crs(regions_sf)),
+    aes(label = "Himalaya"),
+    size = 8
+  ) +
+  geom_sf_text(
+    data = regions_sf %>%
+      filter(REGION == "Sri Lanka") %>%
+      st_point_on_surface() %>%
+      st_geometry() %>%
+      st_coordinates() %>%
+      as.data.frame() %>%
+      mutate(X = X, Y = Y - 0.3) %>%
+      st_as_sf(coords = c("X", "Y"), crs = st_crs(regions_sf)),
+    aes(label = "Sri Lanka"),
+    size = 8
+  ) +
   scale_y_continuous(expand = c(0,0)) +
   theme(text=element_text(family="Gill Sans")) +
   theme(axis.line=element_blank(),
@@ -329,10 +374,10 @@ regionmap = ggplot() +
         panel.border = element_blank(),
         plot.title = element_text(hjust = 0.5),
         panel.background = element_blank())+
-  theme(legend.title = element_blank(), legend.text = element_text(size = 16),
-        legend.position = "bottom")  +
-  guides(fill = guide_legend(nrow = 1)) +
-  scale_fill_manual(breaks = bks, values = cols1, labels = lbs, na.value = "white") +
+  #theme(legend.title = element_blank(), legend.text = element_text(size = 16),
+  #      legend.position = "bottom")  +
+  #guides(fill = guide_legend(nrow = 1)) +
+  #scale_fill_manual(breaks = bks, values = cols1, labels = lbs, na.value = "white") +
   coord_sf()
 
 n = "regionmap.png"
